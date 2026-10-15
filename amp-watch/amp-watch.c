@@ -16,8 +16,8 @@
 #define POLL_SECONDS 5
 
 // Silence threshold after which the amp and cooling fan are turned off
-#define SILENCE_US (10ULL * 60 * 1000000ULL) /* 5 minutes */
-// #define SILENCE_US (10ULL * 1000000ULL) /* 10 seconds */
+#define SILENCE_US (5ULL * 60 * 1000000ULL) /* 5 minutes */
+// #define SILENCE_US (10ULL * 1000000ULL) /* 10 seconds for testing */
 
 static jack_port_t *input;
 static atomic_uint_fast64_t last_audio_us = ATOMIC_VAR_INIT(0);
