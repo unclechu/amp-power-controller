@@ -39,14 +39,7 @@ MOSFET check current capabilities of your MOSFET). And the amp power is switched
 using a 3V-controlled high-voltage relay that breaks the HOT lead.
 
 If your amplifier of choice supports something like 12V trigger it will be a
-much safer build to just connect 12V positive through the relay. Or just use
-similar BS170 MOSFET network (currents of those triggers are typically very
-small, <10mA, so BS170 would handle it very easy). But you might want to switch
-positive, not ground, so source-follower MOSFET configuration (connect 12V
-straight to drain, and connect source to the amplifier V+ for the 12V trigger),
-but it depends on how your amplifiers implements the trigger network. Breaking
-ground instead of V+ (as showed for the fan powering) is less prone to voltage
-drop.
+much safer build to just connect 12V positive through the relay.
 
 ## JACK Watch Program
 
