@@ -2,7 +2,7 @@
 , lib ? pkgs.lib
 , callPackage ? pkgs.callPackage
 
-, amp-watch ? callPackage ./amp-watch {}
+, jack-watch ? callPackage ./jack-watch {}
 
 , inNixShell ? false
 }:
@@ -81,5 +81,5 @@ in
 
 (if inNixShell then shell else {}) // {
   inherit pico-sdk shell amp-power-controller-pico-firmware;
-  inherit (amp-watch) amp-power-controller-jack-watch;
+  inherit (jack-watch) amp-power-controller-jack-watch;
 }

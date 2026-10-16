@@ -8,5 +8,5 @@ LIBS=$(pkg-config --libs jack)
 
 cc -std=c11 -O2 -Wall -Wextra -Wpedantic \
   $CFLAGS \
-  amp-watch.c -o amp-watch \
+  main.c -o jack-watch \
   $LIBS -pthread

@@ -22,7 +22,7 @@ let
     pname = "amp-power-controller-jack-watch";
     version = "0.0.1";
 
-    src = ./amp-watch.c;
+    src = ./main.c;
 
     dontUnpack = true;
     dontConfigure = true;
