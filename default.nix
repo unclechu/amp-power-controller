@@ -6,6 +6,11 @@
 }:
 
 {
-  inherit (pico-firmware) amp-power-controller-pico-firmware;
-  inherit (jack-watch) amp-power-controller-jack-watch;
+  inherit (pico-firmware)
+    amp-power-controller-pico-firmware
+    amp-power-switch
+    ;
+  inherit (jack-watch)
+    amp-power-controller-jack-watch
+    ;
 }

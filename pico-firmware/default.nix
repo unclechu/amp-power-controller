@@ -1,6 +1,8 @@
 { pkgs ? import <nixpkgs> {}
 , lib ? pkgs.lib
 , callPackage ? pkgs.callPackage
+, stdenv ? pkgs.stdenv
+, stdenvNoCC ? pkgs.stdenvNoCC
 
 , inNixShell ? false
 }:
@@ -25,7 +27,7 @@ let
     '';
   };
 
-  amp-power-controller-pico-firmware = pkgs.stdenv.mkDerivation {
+  amp-power-controller-pico-firmware = stdenv.mkDerivation {
     pname = "amp-power-controller-pico-firmware";
     version = "0.0.1";
 
@@ -75,8 +77,43 @@ let
       runHook postInstall
     '';
   };
+
+  amp-power-switch = stdenvNoCC.mkDerivation (lib.fix (self: {
+    pname = "amp-power-switch";
+    version = "0.0.1";
+
+    src = ./power.sh;
+
+    nativeBuildInputs = [
+      pkgs.makeBinaryWrapper
+    ];
+
+    dontUnpack = true;
+    dontBuild = true;
+
+    installPhase = ''
+      runHook preInstall
+
+      BIN_PATH="$out/bin/"${lib.escapeShellArg self.pname}
+
+      install -Dm755 "$src" "$BIN_PATH"
+      patchShebangs "$BIN_PATH"
+
+      wrapProgram "$BIN_PATH" \
+        --prefix PATH : ${lib.escapeShellArg (lib.makeBinPath [
+          pkgs.coreutils # `stty`
+        ])}
+
+      runHook postInstall
+    '';
+  }));
 in
 
 (if inNixShell then shell else {}) // {
-  inherit pico-sdk shell amp-power-controller-pico-firmware;
+  inherit
+    pico-sdk
+    shell
+    amp-power-controller-pico-firmware
+    amp-power-switch
+    ;
 }
