@@ -1,4 +1,5 @@
 { pkgs ? import <nixpkgs> {}
+, lib ? pkgs.lib
 , callPackage ? pkgs.callPackage
 
 , amp-watch ? callPackage ./amp-watch {}
@@ -8,7 +9,7 @@
 
 let
   pico-sdk = pkgs.pico-sdk.override {
-    withSubmodules = true; # Enable USB serial module for TTY interface
+    withSubmodules = true; # Enable TinyUSB serial module for TTY interface
   };
 
   shell = pkgs.mkShell {
@@ -22,12 +23,63 @@ let
     ];
 
     shellHook = ''
-      export PICO_SDK_PATH="${pico-sdk}/lib/pico-sdk"
+      export PICO_SDK_PATH=${lib.escapeShellArg "${pico-sdk}/lib/pico-sdk"}
+    '';
+  };
+
+  amp-power-controller-pico-firmware = pkgs.stdenv.mkDerivation {
+    pname = "amp-power-controller-pico-firmware";
+    version = "0.0.1";
+
+    src = lib.fileset.toSource {
+      root = ./.;
+      fileset = lib.fileset.unions [
+        ./CMakeLists.txt
+        ./main.c
+      ];
+    };
+
+    nativeBuildInputs = [
+      pkgs.cmake
+      pkgs.python3 # cmake needs it
+      pkgs.ninja
+      pkgs.gcc-arm-embedded
+      pkgs.picotool
+    ];
+
+    PICO_SDK_PATH = "${pico-sdk}/lib/pico-sdk";
+
+    dontConfigure = true;
+
+    buildPhase = ''
+      runHook preBuild
+
+      CMAKE_CONFIGURE_CMD=(
+        cmake -S . -B build -G Ninja
+        -DPICO_BOARD=pico # Regular (no WiFi module) Pico board
+        -Dpicotool_DIR=${lib.escapeShellArg "${pkgs.picotool}/lib/cmake/picotool"}
+        # Make CMake not to download dependencies from the internet
+        -DFETCHCONTENT_FULLY_DISCONNECTED=ON
+      )
+      "''${CMAKE_CONFIGURE_CMD[@]}"
+
+      cmake --build build
+
+      runHook postBuild
+    '';
+
+    installPhase = ''
+      runHook preInstall
+
+      install -Dm644 build/amp-power-controller.uf2 "$out/firmware/amp-power-controller.uf2"
+      install -Dm644 build/amp-power-controller.elf "$out/firmware/amp-power-controller.elf"
+
+      runHook postInstall
     '';
   };
 in
 
 (if inNixShell then shell else {}) // {
-  inherit shell pico-sdk;
+  inherit pico-sdk shell amp-power-controller-pico-firmware;
   inherit (amp-watch) amp-power-controller-jack-watch;
 }
