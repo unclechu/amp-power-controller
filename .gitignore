@@ -1,2 +1,6 @@
 # Build artifacts
 build
+
+# Nix default build artifacts
+result
+result-*

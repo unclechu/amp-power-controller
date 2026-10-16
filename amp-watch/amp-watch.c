@@ -19,6 +19,8 @@
 #define SILENCE_US (5ULL * 60 * 1000000ULL) /* 5 minutes */
 // #define SILENCE_US (10ULL * 1000000ULL) /* 10 seconds for testing */
 
+#define JACK_CLIENT_NAME "amp_power_controller_watch"
+
 static jack_port_t *input;
 static atomic_uint_fast64_t last_audio_us = ATOMIC_VAR_INIT(0);
 static volatile sig_atomic_t running = 1;
@@ -116,7 +118,11 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  jack_client_t *client = jack_client_open("amp_watch", JackNoStartServer, NULL);
+  jack_client_t *client = jack_client_open(
+    JACK_CLIENT_NAME,
+    JackNoStartServer,
+    NULL
+  );
   if (!client) {
     fprintf(stderr, "Cannot connect to the JACK server.\n");
     return 1;
