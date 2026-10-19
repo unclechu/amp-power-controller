@@ -161,12 +161,14 @@ int main(int argc, char **argv) {
     sleep(POLL_SECONDS);
     if (!running) break;
 
-    bool no_audio_yet =
-      atomic_load_explicit(&last_audio_us, memory_order_relaxed) == 0;
-    uint64_t elapsed_us = jack_get_time() - (
-      no_audio_yet ? start_us :
-      atomic_load_explicit(&last_audio_us, memory_order_relaxed)
-    );
+    uint64_t elapsed_us = atomic_load_explicit(&last_audio_us, memory_order_relaxed);
+    bool no_audio_yet = elapsed_us == 0;
+    uint64_t now = jack_get_time();
+    uint64_t reference = no_audio_yet ? start_us : elapsed_us;
+    // Underflow protection (just in case)
+    elapsed_us = now >= reference ? now - reference : 0;
+
+    // Log the current situation
     uint64_t secs = elapsed_us / 1000000ULL;
     fprintf(
       stderr,
