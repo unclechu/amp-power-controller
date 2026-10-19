@@ -80,6 +80,7 @@ let
 
   amp-power-switch = stdenvNoCC.mkDerivation (lib.fix (self: {
     pname = "amp-power-switch";
+    meta.mainProgram = self.pname;
     version = "0.0.1";
 
     src = ./power.sh;

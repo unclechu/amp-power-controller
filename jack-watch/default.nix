@@ -20,6 +20,7 @@ let
 
   amp-power-controller-jack-watch = stdenv.mkDerivation (lib.fix (self: {
     pname = "amp-power-controller-jack-watch";
+    meta.mainProgram = self.pname;
     version = "0.0.1";
 
     src = ./main.c;
