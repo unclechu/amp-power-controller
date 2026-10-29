@@ -139,15 +139,19 @@ jack_connect 'PulseAudio JACK Sink:front-left' 'amp_power_controller_watch:in'
 jack_connect 'PulseAudio JACK Sink:front-right' 'amp_power_controller_watch:in'
 ```
 
-Then it will automatically detect sound presence and power the amplifier on,
-and power it off when there is no audio for specified amount of minutes. The
-main thread will check every N seconds for the audio presence. So amplifier
-turning on can be lagged by maximum that amount of seconds (I’m not accounting
-for minor instructions execution and relay delays, amplifier capacitors charging
-and other factors like these).
+Then it will automatically detect sound presence and power the amplifier on, and
+power it off when there is no audio for specified amount of minutes. When the
+amp is on the main thread will check every `TURN_OFF_POLL_SECONDS` seconds if
+the audio is still playing, and switch the amp off when the `SILENCE_US`
+threshold is reached. If the amplifier is currently off, the checking is
+happening more often, every `TURN_ON_POLL_MS` milliseconds. But it’s a more
+simple check, just to see if the audio thread reports any updates. This way
+waking up is fast. (I’m not accounting for minor instructions execution and
+relay delays, amplifier capacitors charging and other factors like these).
 
 ```c
-#define POLL_SECONDS 5
+#define TURN_OFF_POLL_SECONDS 5
+#define TURN_ON_POLL_MS 500
 #define SILENCE_US (5ULL * 60 * 1000000ULL) /* 5 minutes */
 ```
 
